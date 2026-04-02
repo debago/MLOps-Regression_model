@@ -1,0 +1,11 @@
+data:
+  test_size: 0.2
+  random_state: 42
+
+model:
+  n_estimators: 100
+
+mlflow:
+  experiment_name: "mlops-production"
+  registered_model_name: "iris-model"
+  tracking_uri: "http://127.0.0.1:5000"
