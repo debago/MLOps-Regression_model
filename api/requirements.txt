@@ -3,3 +3,4 @@ uvicorn
 pandas
 mlflow
 scikit-learn
+ruamel.yaml
