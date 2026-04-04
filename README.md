@@ -53,9 +53,7 @@ mlflow server \
 
 docker build -t mlflow-server ./mlflow
 
-# Build Fastapi build image:
 
-docker build -t ml-api ./api
 
 # Create mlartifacts folder inside VM and give permissions:
 
@@ -109,12 +107,17 @@ python -c "import requests; print(requests.get('http://localhost:5000').status_c
 expected response 200
 
 python -c "import requests; print(requests.get('http://localhost:5000').text[:200])"
+
+# Build Fastapi build image:
+
+docker build -t ml-api ./api
+
 # Start FastAPI Container:
 
 docker run -d -p 8000:8000 \
-    --name ml-api \
-    -e MLFLOW_TRACKING_URI=http://host.docker.internal:5000 \
-    -e MODEL_URI=models:/iris-rf-model/Production \
+    --name ml-api-container \
+    -e MLFLOW_TRACKING_URI=http://<vm-ip>:5000 \
+    -e MODEL_URI=models:/iris-model@latest \
     ml-api
 
 # docker commands:

@@ -3,7 +3,7 @@ import mlflow.pyfunc
 import pandas as pd
 from fastapi import FastAPI
 from pydantic import BaseModel
-from ruamel import yaml
+import yaml
 
 # 👉 Create FastAPI app
 app = FastAPI(title="ML Model API", version="1.0")
