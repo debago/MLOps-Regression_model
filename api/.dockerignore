@@ -1,0 +1,29 @@
+__pycache__/
+*.pyc
+*.pyo
+# Ignore data files
+*.csv
+*.json
+# Ignore model files
+*.pkl
+*.joblib
+# Ignore MLflow files
+mlflow.db
+mlflow/artifacts/
+# Ignore Docker files
+Dockerfile
+.dockerignore
+# Ignore environment files and logs
+.env
+logs/
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+ipnyb
+# Ignore VSCode settings
+.vscode/
+#Git ignore for Python virtual environments
+venv/
+env/
+.git/
+data/
+tests/

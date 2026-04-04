@@ -57,12 +57,17 @@ docker build -t mlflow-server ./mlflow
 
 docker build -t ml-api ./api
 
+# Create mlartifacts folder inside VM and give permissions:
+
+mkdir -p /home/azureuser/mlartifacts
+sudo chmod -R 777 /home/azureuser/mlartifacts
+
 # Run mlflow container:
 
 docker run -d -p 5000:5000 --name mlflow mlflow-server
 
 # With Mount:
-docker run -p 5000:5000 -v $(pwd)/mlartifacts:/mlflow/mlflow.db mlflow-server
+docker run -d -p 5000:5000 -v /home/azureuser/mlartifacts:/mlflow/martifacts --name mlflow mlflow-server
 
 # Debug:
 docker run -p 5000:5000 mlflow-server \
@@ -81,6 +86,29 @@ docker run -it --entrypoint sh <image-name>
 docker run -p 5000:5000 mlflow-server server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:///mlflow.db --default-artifact-root /mlflow/artifacts --allowed-hosts "*"
 
 
+# Validate:
+ Run inside vm:
+
+curl http://localhost:5000
+
+from local machine:
+
+curl http:// vm-ip:5000
+
+Go Inside container:
+
+docker exec -it mlflow sh
+ps aux | grep mlflow
+netstat -tuln | grep 5000
+if net-stat not available
+pip install net-tools curl -y
+ss -tuln | grep 5000
+curl http://localhost:5000
+if curl not available:
+python -c "import requests; print(requests.get('http://localhost:5000').status_code)"
+expected response 200
+
+python -c "import requests; print(requests.get('http://localhost:5000').text[:200])"
 # Start FastAPI Container:
 
 docker run -d -p 8000:8000 \
@@ -89,4 +117,13 @@ docker run -d -p 8000:8000 \
     -e MODEL_URI=models:/iris-rf-model/Production \
     ml-api
 
+# docker commands:
 
+docker ps
+docker ps -a
+docker stop <container>
+docker rm <container>
+docker images
+docker rmi <image-id>
+
+# 
