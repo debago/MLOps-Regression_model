@@ -19,9 +19,24 @@ def load_params():
 def preprocess_data():
     params = load_params()
 
-    data = load_iris()
-    X = pd.DataFrame(data.data, columns=data.feature_names)
-    y = data.target
+    # data = load_iris()
+    # X = pd.DataFrame(data.data, columns=data.feature_names)
+    # y = data.target
+
+    # 👉 Load from CSV instead of sklearn
+
+    df = pd.read_csv("data/raw/iris.csv")
+
+    print("📊 Data Loaded:")
+    print(df.head())
+
+    # 👉 Basic validation (we'll improve later)
+    if df.isnull().sum().sum() > 0:
+        raise ValueError("Missing values detected!")
+
+    # 👉 Split
+    X = df.drop("target", axis=1)
+    y = df["target"]
 
     X_train, X_test, y_train, y_test = train_test_split(
         X,

@@ -1,0 +1,27 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system deps (needed sometimes for sklearn)
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+# Copy files
+COPY . .
+
+# Install Python deps
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Expose port
+EXPOSE 8000
+
+# Environment variables (can override)
+ENV MLFLOW_TRACKING_URI=http://mlflow:5000
+ENV MODEL_URI=models:/iris-model@latest
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+  CMD curl --fail http://127.0.0.1:8000/health || exit 1
+
+# Start API
+ENTRYPOINT ["uvicorn"]
+CMD ["app:app", "--host", "0.0.0.0", "--port", "8000"]
