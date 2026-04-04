@@ -99,7 +99,7 @@ docker exec -it mlflow sh
 ps aux | grep mlflow
 netstat -tuln | grep 5000
 if net-stat not available
-pip install net-tools curl -y
+apt-get update && apt-get install net-tools curl -y
 ss -tuln | grep 5000
 curl http://localhost:5000
 if curl not available:
