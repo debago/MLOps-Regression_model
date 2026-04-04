@@ -67,6 +67,7 @@ def train_model():
         )
 
     print("✅ Training + Evaluation + Logging complete")
+    print(mlflow.get_artifact_uri())
 
 
 # if __name__ == "__main__":

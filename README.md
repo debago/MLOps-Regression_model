@@ -61,8 +61,24 @@ docker build -t ml-api ./api
 
 docker run -d -p 5000:5000 --name mlflow mlflow-server
 
-# Run Mlfow API container:
+# With Mount:
+docker run -p 5000:5000 -v $(pwd)/mlartifacts:/mlflow/mlflow.db mlflow-server
 
+# Debug:
+docker run -p 5000:5000 mlflow-server \
+server \ 
+--host 0.0.0.0 \
+--port 5000 \
+--backend-store-uri sqlite:///mlflow.db \
+--default-artifact-root /mlflow/artifacts \
+--allowed-hosts "*"
+
+docker run -it --entrypoint sh <image-name>
+
+
+# single line command:
+
+docker run -p 5000:5000 mlflow-server server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:///mlflow.db --default-artifact-root /mlflow/artifacts --allowed-hosts "*"
 
 
 # Start FastAPI Container:

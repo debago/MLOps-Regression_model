@@ -8,4 +8,4 @@ model:
 mlflow:
   experiment_name: "mlops-production-iris"
   registered_model_name: "iris-model"
-  tracking_uri: "http://127.0.0.1:5000"
+  tracking_uri: "http://40.75.103.57:5000"
