@@ -6,7 +6,7 @@ WORKDIR /app
 RUN pip install --no-cache-dir mlflow boto3 psycopg2-binary curl
 
 # Create directories
-RUN mkdir -p /mlflow/artifacts
+RUN mkdir -p /mlflow/artifacts /mlflow/db
 
 # Expose port
 EXPOSE 5000
@@ -18,7 +18,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
 # Start MLflow server
 ENTRYPOINT ["mlflow"]
 CMD ["server", \
-     "--backend-store-uri", "sqlite:///mlflow.db", \
+     "--backend-store-uri", "sqlite:///mlflow/db/mlflow.db", \
      "--default-artifact-root", "/mlflow/artifacts", \
      "--allowed-hosts", "*", \
      "--host", "0.0.0.0", \
