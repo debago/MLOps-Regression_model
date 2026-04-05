@@ -3,7 +3,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Install dependencies
-RUN pip install --no-cache-dir mlflow boto3 psycopg2-binary curl
+RUN pip install --no-cache-dir mlflow boto3 psycopg2-binary
 
 # Create directories
 RUN mkdir -p /mlflow/artifacts /mlflow/db
