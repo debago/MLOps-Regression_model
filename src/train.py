@@ -65,9 +65,10 @@ def train_model():
             "model",
             registered_model_name=params["mlflow"]["registered_model_name"]
         )
+        print("Artifact URI: " + mlflow.get_artifact_uri())
 
     print("✅ Training + Evaluation + Logging complete")
-    print(mlflow.get_artifact_uri())
+    
 
 
 # if __name__ == "__main__":
