@@ -261,6 +261,9 @@ docker exec -it <api-container> sh
 1. Step 1 — Confirm MLflow server config
 docker ps
 docker inspect mlflow-container | grep -A 20 Cmd
+# inspect mount , volume none i above output is expected
+
+docker inspect mlflow --format '{{json .Mounts}}'
 
 2. Step 2 — Check actual DB usage
 
@@ -319,6 +322,70 @@ docker run -d -p 5000:5000 \
     --allow-hosts="*" \
     --host 0.0.0.0 \
     --port 5000
+
+--------------------------------
+# docker run with user ensures:
+
+-u $(id -u):$(id -g)
+Runs container as your VM user (azureuser)
+Prevents root-owned files
+Ensures:
+/home/azureuser/mldb ✅ writable
+/home/azureuser/mlartifacts ✅ writable
+--------------------------------------
+docker run -d -p 5000:5000 \
+  -u $(id -u):$(id -g) \
+  -v /home/azureuser/mldb:/mlflow/db \
+  -v /home/azureuser/mlartifacts:/mlflow/artifacts \
+  --name mlflow \
+  mlflow-server:latest \
+  server \
+    --backend-store-uri sqlite:////mlflow/db/mlflow.db \
+    --default-artifact-root /mlflow/artifacts \
+    --allowed-hosts "*" \
+    --host 0.0.0.0 \
+    --port 5000
+------------------------
+
+# How to confirm Entrypoint:
+
+docker inspect mlflow-server:latest | grep -A 5 Entrypoint
+docker inspect mlflow-container | grep -A 20 Cmd
+
+# if container exit immediately after startup:
+docker logs mlflow
+docker inspect mlflow --format '{{.State.Status}} {{.State.ExitCode}} {{.State.Error}}'
+ # Relative path 3 /// , absoulute path 4 //// read lelow to understand
+--------------------------------
+ Using 3 slashes for absolute path
+sqlite:///mlflow/db/mlflow.db
+
+👉 MLflow interprets as:
+
+./mlflow/db/mlflow.db
+
+ but expected is:
+
+ /mlflow/db/mlflow.db
+------------------------------------
+
+--backend-store-uri sqlite:////mlflow/db/mlflow.db \ 
+------------------------------------------
+# valiadte Image CMD and ENTRYPOINT:
+
+docker inspect mlflow-server:latest --format '{{json .Config.Entrypoint}} {{json .Config.Cmd}}'
+
+python -c "import requests; print(requests.get('http://127.0.0.1:5000').status_code)"
+>>response 200
+ls /home/azureuser/mlartifacts
+python -c "import mlflow; print(mlflow.get_tracking_uri())"
+
+
+# verify:
+
+docker exec -it mlflow id
+
+>>response expected as uid=1000 gid=1000
 
 # Verify BEFORE pipeline
 
