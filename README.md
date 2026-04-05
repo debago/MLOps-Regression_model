@@ -33,8 +33,18 @@ mlops-project/
 
 
 #useful commands:
+
+# Login to azure vm
+
+chmod 400 <private_key>
+#chmod 400 ~/Downloads/vm.pem
+ssh -i <private-pem key> azureuser@vm-public-ip
+# ssh -i ~/Downloads/vm.pem azureuser@40.75.103.57
+
+
 import src.preprocess import preprocess
 python -m src.train 
+
 mlflow server \
     --backend-store-uri sqlite:///mlflow.db \
     --default-artifact-root ./artifacts \
@@ -72,7 +82,8 @@ docker exec -it mlflow id
 sudo chown -R 1000:1000 /home/azureuser/mldb
 sudo chmod -R 777 /home/azureuser/mldb
 
-
+export MLFLOW_TRACKING_URI=http://40.75.103.57:5000
+echo $MLFLOW_TRACKING_URI
 
 # Run mlflow container:
 
@@ -82,23 +93,30 @@ docker run -d -p 5000:5000 --name mlflow mlflow-server
 docker run -d -p 5000:5000 -v /home/azureuser/mlartifacts:/mlflow/martifacts -v /home/azureuser/mldb:/mlflow/db --name mlflow mlflow-server
 
 docker run -d -p 5000:5000 \
-    --name mlflow
-    -v /home/azureuser/mlartifacts:/mlflow/artifacts \
-    -v /home/azureuser/mldb:/mlflow/db \
-    mlflow-server \
-    server \
-    --host 0.0.0.0 \
-    --port 5000 \
-    --backend-store-uri sqlite:///mlflow/db/mlflow.db \
-    --default-artifact-root /mlflow/artifacts \
-    --allowed-hosts "*"
+  --name mlflow \
+  -v /home/azureuser/mlartifacts:/mlflow/artifacts \
+  -v /home/azureuser/mldb:/mlflow/db \
+  mlflow-server \
+  server \
+  --backend-store-uri sqlite:///mlflow/db/mlflow.db \
+  --default-artifact-root file:///mlflow/artifacts \
+  --host 0.0.0.0 \
+  --port 5000 \
+  --allowed-hosts "*"
 
 # oneline :
 
 ---------------------------------
 
-docker run -d -p 5000:5000  --name mlflow     -v /home/azureuser/mlartifacts:/mlflow/artifacts     -v /home/azureuser/mldb:/mlflow/db     mlflow-server     server     --host 0.0.0.0     --port 5000     --backend-store-uri sqlite:///mlflow/db/mlflow.db     --default-artifact-root /mlflow/artifacts --allowed-hosts "*"
+docker run -d -p 5000:5000  --name mlflow     -v /home/azureuser/mlartifacts:/mlflow/artifacts     -v /home/azureuser/mldb:/mlflow/db     mlflow-server     server     --host 0.0.0.0     --port 5000     --backend-store-uri sqlite:///mlflow/db/mlflow.db     --default-artifact-root /mlflow/artifacts --allow-hosts "*"
 ------------------------------------------
+
+docker run -d -p 5000:5000 \
+  --name mlflow \
+  -v /home/azureuser/mlartifacts:/mlflow/artifacts \
+  -v /home/azureuser/mldb:/mlflow/db \
+  mlflow-server
+----------------------------------------
 
 # Debug:
 docker run -p 5000:5000 mlflow-server \
@@ -149,18 +167,17 @@ docker build -t ml-api ./api
 
 docker run -d -p 8000:8000 \
     --name ml-api-container \
-    -v /home/azureuser/mlartifacts:/mlflow/martifacts \
+    -v /home/azureuser/mlartifacts:/mlflow/artifacts \
     -e MLFLOW_TRACKING_URI=http://<vm-ip>:5000 \
     -e MODEL_URI=models:/iris-model@latest \
     ml-api
 
 docker run -d -p 8000:8000 \
     --name ml-api-container \
-    -v /home/azureuser/mlartifacts:/mlflow/martifacts \
+    -v /home/azureuser/mlartifacts:/mlflow/artifacts \
     -e MLFLOW_TRACKING_URI=http://40.75.103.57:5000 \
     -e MODEL_URI=models:/iris-model@latest \
     ml-api
-
 
 # docker commands:
 
@@ -238,3 +255,74 @@ print([m.name for m in models])
 
 docker exec -it <api-container> python
 docker exec -it <api-container> sh
+
+# debug as mlflow is not visible with runs/models/artifacts
+
+1. Step 1 — Confirm MLflow server config
+docker ps
+docker inspect mlflow-container | grep -A 20 Cmd
+
+2. Step 2 — Check actual DB usage
+
+docker exec -it mlflow-container bash
+ls /mlflow/db
+ls /mlflow/artifacts
+
+docker stop mlflow
+docker rm mlflow
+
+# Clean old local  runs
+rm -rf mlruns
+
+# ensure volume mounts:
+
+mkdir -p /home/azureuser/mldb
+mkdir -p /home/azureuser/mlartifacts
+chmod -R 777 /home/azureuser/mldb
+chmod -R 777 /home/azureuser/mlartifacts
+
+ls -ld /home/azureuser/mlartifacts
+ls -ld /home/azureuser/mldb
+
+# if file doesn't have proper permission: 
+
+change owner:
+
+sudo chown -R azureuser:azureuser /home/azureuser/mlartifacts
+sudo chown -R azureuser:azureuser /home/azureuser/mldb
+
+Then give permission:
+
+chmod -R 755 /home/azureuser/mlartifacts
+chmod -R 755 /home/azureuser/mldb
+
+if above fails:
+---------------
+sudo rm -rf /home/azureuser/mlartifacts
+sudo rm -rf /home/azureuser/mldb
+
+mkdir -p /home/azureuser/mlartifacts
+mkdir -p /home/azureuser/mldb
+-----------------------
+
+
+# run docker :
+
+docker run -d -p 5000:5000 \
+  -v /home/azureuser/mldb:/mlflow/db \
+  -v /home/azureuser/mlartifacts:/mlflow/artifacts \
+  --name mlflow \
+  mlflow-server:latest \
+ server \
+    --backend-store-uri sqlite:///mlflow/db/mlflow.db \
+    --default-artifact-root /mlflow/artifacts \
+    --allow-hosts="*" \
+    --host 0.0.0.0 \
+    --port 5000
+
+# Verify BEFORE pipeline
+
+docker exec -it mlflow bash
+ls /mlflow/db
+ls /mlflow/artifacts
+

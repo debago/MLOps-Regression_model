@@ -27,7 +27,7 @@ def train_model():
 
     # MLflow setup (Env override for Docker/Kubernetes)
 
-    tracking_uri = os.getenv("MLFLOW_TRACKING_URI", params["mlflow"]["tracking_uri"])
+    tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
 
 
     mlflow.set_tracking_uri(tracking_uri)
@@ -66,6 +66,7 @@ def train_model():
             registered_model_name=params["mlflow"]["registered_model_name"]
         )
         print("Artifact URI: " + mlflow.get_artifact_uri())
+        print("tracking URI: " + mlflow.get_tracking_uri())
 
     print("✅ Training + Evaluation + Logging complete")
     
