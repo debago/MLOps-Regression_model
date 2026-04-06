@@ -13,7 +13,6 @@ RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy project files
-COPY data ./data
 COPY src ./src
 COPY params.yaml .
 

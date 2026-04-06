@@ -191,6 +191,15 @@ docker rmi <image-id>
 docker stop <container>
 docker restart <container>
 
+# remove all container which are stopped
+docker rm $(docker ps -aq -f status=exited)
+
+# run regularly for disk space management:
+
+docker container prune -f
+docker system prune -a   # Removed stopped container, unused images, build cache
+
+
 # Debug as API can't load model:
 docker exec -it <api-container> sh
 
@@ -535,6 +544,6 @@ sqlite3 /home/azureuser/mldb/mlflow.db "select run_uuid, artifact_uri from runs 
 docker build -t ml-train -f train.Dockerfile .
 
 docker run -e MLFLOW_TRACKING_URI=http://40.75.103.57:5000 \
-    -v /home/azuereuser/data: /app/data \
+    -v /home/azuereuser/data:/app/data \
     ml-train
 
