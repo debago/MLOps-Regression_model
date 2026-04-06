@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 # Copy files
 COPY . .
 
+
 # Install Python deps
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -25,3 +26,7 @@ HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
 # Start API
 ENTRYPOINT ["uvicorn"]
 CMD ["app:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# if build context is root, use:
+# ENTRYPOINT ["uvicorn"]  
+#CMD ["api.app:app", "--host", "0.0.0.0", "--port", "8000"]

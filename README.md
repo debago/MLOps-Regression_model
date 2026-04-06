@@ -31,6 +31,17 @@ mlops-project/
 ├── params.yaml
 ├── README.md
 
+-------------------------------------------------
+# Observation:
+
+1. Need to check whether mounts are correct.
+2. Change the owner to the actual user from root before creation mount files and give properpermission.
+3. Check Backend URI path be mindful whether it's relative of absolute path use 3 /// for relative
+  and 4 //// for absolute path
+4. If artifacts not visible  to the mount path check docker run command and use artifact_destination and serve-artifact
+
+------------------------------------------
+
 
 #useful commands:
 
