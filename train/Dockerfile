@@ -12,6 +12,7 @@ COPY train/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy project files
+COPY data ./data
 COPY src ./src
 COPY params.yaml .
 
@@ -23,4 +24,4 @@ ENV PYTHONPATH=/app
 ENV MLFLOW_TRACKING_URI=http://mlflow:5000
 
 # Run pipeline
-CMD ["python", "-m" "src.pipeline"]
+CMD ["python3", "-m" "src.pipeline"]

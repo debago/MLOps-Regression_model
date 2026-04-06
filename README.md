@@ -104,30 +104,21 @@ docker run -d -p 5000:5000 --name mlflow mlflow-server
 docker run -d -p 5000:5000 -v /home/azureuser/mlartifacts:/mlflow/martifacts -v /home/azureuser/mldb:/mlflow/db --name mlflow mlflow-server
 
 docker run -d -p 5000:5000 \
-  --name mlflow \
-  -v /home/azureuser/mlartifacts:/mlflow/artifacts \
+  -u $(id -u):$(id -g) \
   -v /home/azureuser/mldb:/mlflow/db \
-  mlflow-server \
+  -v /home/azureuser/mlartifacts:/mlflow/artifacts \
+  --name mlflow \
+  mlflow-server:latest \
   server \
-  --backend-store-uri sqlite:///mlflow/db/mlflow.db \
-  --default-artifact-root file:///mlflow/artifacts \
-  --host 0.0.0.0 \
-  --port 5000 \
-  --allowed-hosts "*"
+    --backend-store-uri sqlite:////mlflow/db/mlflow.db \
+    --artifacts-destination /mlflow/artifacts \
+    --serve-artifacts \
+    --allowed-hosts "*" \
+    --host 0.0.0.0 \
+    --port 5000
 
-# oneline :
 
----------------------------------
 
-docker run -d -p 5000:5000  --name mlflow     -v /home/azureuser/mlartifacts:/mlflow/artifacts     -v /home/azureuser/mldb:/mlflow/db     mlflow-server     server     --host 0.0.0.0     --port 5000     --backend-store-uri sqlite:///mlflow/db/mlflow.db     --default-artifact-root /mlflow/artifacts --allow-hosts "*"
-------------------------------------------
-
-docker run -d -p 5000:5000 \
-  --name mlflow \
-  -v /home/azureuser/mlartifacts:/mlflow/artifacts \
-  -v /home/azureuser/mldb:/mlflow/db \
-  mlflow-server
-----------------------------------------
 
 # Debug:
 docker run -p 5000:5000 mlflow-server \
@@ -184,7 +175,6 @@ docker run -d -p 8000:8000 \
 
 docker run -d -p 8000:8000 \
     --name ml-api-container \
-    -v /home/azureuser/mlartifacts:/mlflow/artifacts \
     -e MLFLOW_TRACKING_URI=http://40.75.103.57:5000 \
     -e MODEL_URI=models:/iris-model@latest \
     ml-api
@@ -307,7 +297,9 @@ sudo chown -R azureuser:azureuser /home/azureuser/mldb
 Then give permission:
 
 chmod -R 755 /home/azureuser/mlartifacts
-chmod -R 755 /home/azureuser/mldb
+mkdir -p /home/azureuser/data
+sudo chown -R azureuser:azureuser /home/azureuser/data
+chmod -R 755 /home/azureuser/data
 
 if above fails:
 ---------------
@@ -538,4 +530,11 @@ sqlite3 /home/azureuser/mldb/mlflow.db "select run_uuid, artifact_uri from runs 
 
 --------------
 
+# Train dockerfile:
+
+docker build -t ml-train -f train.Dockerfile .
+
+docker run -e MLFLOW_TRACKING_URI=http://40.75.103.57:5000 \
+    -v /home/azuereuser/data: /app/data \
+    ml-train
 
