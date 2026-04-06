@@ -17,7 +17,8 @@ HEALTHCHECK CMD python -c "import requests; exit(0 if requests.get('http://127.0
 ENTRYPOINT ["mlflow"]
 CMD ["server", \
      "--backend-store-uri", "sqlite:////mlflow/db/mlflow.db", \
-     "--default-artifact-root", "/mlflow/artifacts", \
+     "--artifacts-destination", "/mlflow/artifacts", \
+     "--serve-artifacts", \
      "--allowed-hosts", "*", \
      "--host", "0.0.0.0", \
      "--port", "5000"]

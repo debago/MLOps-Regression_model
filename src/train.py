@@ -55,9 +55,11 @@ def train_model():
         # Log metrics
         for metric_name, metric_value in metrics.items():
             mlflow.log_metric(metric_name, metric_value)
+            
 
         # Log params
         mlflow.log_param("n_estimators", params["model"]["n_estimators"])
+        mlflow.log_artifact("params.yaml")
 
         # Log model to MLflow and register
         mlflow.sklearn.log_model(

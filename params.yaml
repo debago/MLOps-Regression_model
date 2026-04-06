@@ -6,7 +6,7 @@ model:
   n_estimators: 100
 
 mlflow:
-  experiment_name: "mlops-production-iris"
+  experiment_name: "mlops-production-iris-remote1-"
   registered_model_name: "iris-model"
   tracking_uri: "http://40.75.103.57:5000"
   # tracking_uri: "http://127.0.0.1:5000"

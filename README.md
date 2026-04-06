@@ -41,8 +41,8 @@ chmod 400 <private_key>
 ssh -i <private-pem key> azureuser@vm-public-ip
 # ssh -i ~/Downloads/vm.pem azureuser@40.75.103.57
 
-
-import src.preprocess import preprocess
+export MLFLOW_TRACKING_URI=http://40.75.103.57:5000
+echo $MLFLOW_TRACKING_URI
 python -m src.train 
 
 mlflow server \
@@ -167,7 +167,6 @@ docker build -t ml-api ./api
 
 docker run -d -p 8000:8000 \
     --name ml-api-container \
-    -v /home/azureuser/mlartifacts:/mlflow/artifacts \
     -e MLFLOW_TRACKING_URI=http://<vm-ip>:5000 \
     -e MODEL_URI=models:/iris-model@latest \
     ml-api
@@ -392,4 +391,140 @@ docker exec -it mlflow id
 docker exec -it mlflow bash
 ls /mlflow/db
 ls /mlflow/artifacts
+
+# API container:
+
+docker run -d -p 8000:8000 \
+    -u $(id -u):$(id -g) \
+    --name ml-api-container \
+    -e MLFLOW_TRACKING_URI=http://40.75.103.57:5000 \
+    -e MODEL_URI=models:/iris-model@latest \
+    ml-api
+
+ls -al /home/azureuser/mldb
+>>> mlflow.db should present
+ls -al /home/azureuser/mlartifacts
+
+# issue: Artifacts not visible
+
+ # To Check artifact URI:
+
+sqlite3 /home/azureuser/mldb/mlflow.db "select run_uuid, artifact_uri from runs order by start_time desc limit 5;"
+
+output :
+/mlflow/artifacts/1/5f9419cde1684a33a143aaf9dd7a86fc/artifacts
+
+it is local filesystem. follow as below:
+find /home/azureuser/mlartifacts -maxdepth 6 -type f | head -50
+
+--- >> Start MLflow with --serve-artifacts:
+--------------------------------------------
+docker rm -f mlflow 2>/dev/null
+
+docker run -d -p 5000:5000 \
+  -u $(id -u):$(id -g) \
+  -v /home/azureuser/mldb:/mlflow/db \
+  -v /home/azureuser/mlartifacts:/mlflow/artifacts \
+  --name mlflow \
+  mlflow-server:latest \
+  server \
+    --backend-store-uri sqlite:////mlflow/db/mlflow.db \
+    --default-artifact-root /mlflow/artifacts \
+    --serve-artifacts \
+    --allowed-hosts "*" \
+    --host 0.0.0.0 \
+    --port 5000
+
+
+# With Artifact-destination &serve artifacts
+
+docker run -d -p 5000:5000 \
+  -u $(id -u):$(id -g) \
+  -v /home/azureuser/mldb:/mlflow/db \
+  -v /home/azureuser/mlartifacts:/mlflow/artifacts \
+  --name mlflow \
+  mlflow-server:latest \
+  server \
+    --backend-store-uri sqlite:////mlflow/db/mlflow.db \
+    --artifacts-destination /mlflow/artifacts \
+    --serve-artifacts \
+    --allowed-hosts "*" \
+    --host 0.0.0.0 \
+    --port 5000
+
+-----------------------------------    
+
+After adding server-artifacts if the oitput of below:
+
+sqlite3 /home/azureuser/mldb/mlflow.db "select run_uuid, artifact_uri from runs order by start_time desc limit 5;" 
+
+sqlite3 /home/azureuser/mldb/mlflow.db "select experiment_id, name, artifact_location from experiments order by experiment_id;"
+
+
+is pointing to local then change experiment name.
+
+ls -al /home/azureuser/mlartifacts
+find /home/azureuser/mlartifacts -maxdepth 6 -type f | head -50
+
+
+# run in local :
+
+echo $MLFLOW_TRACKING_URI
+python -c "import mlflow; print(mlflow.get_tracking_uri())"
+
+>> both should point to vm-ip:5000
+
+# Veryfy MLflow version:
+
+local:
+python -c "import mlflow; print(mlflow.__version__)"
+
+Inside VM :
+docker exec -it mlflow python -c "import mlflow; print(mlflow.__version__)"
+
+# Check on vm whether experiments are on the backend:
+ 
+Output will show the lifecycle state and status: 
+
+curl -X POST http://127.0.0.1:5000/api/2.0/mlflow/runs/search \
+  -H "Content-Type: application/json" \
+  -d '{"experiment_ids":["2"]}'
+
+# run status:
+
+sqlite3 /home/azureuser/mldb/mlflow.db \
+"select run_uuid, experiment_id, lifecycle_stage, status from runs order by start_time desc limit 10;"
+
+
+find /home/azureuser/mlartifacts -maxdepth 6 -type f | head -50
+
+expected o/p:
+>>>>>>>>>
+find /home/azureuser/mlartifacts -maxdepth 6 -type f | head -50
+/home/azureuser/mlartifacts/3/360d485c204d4559b9ca78c56d0f7475/artifacts/params.yaml
+/home/azureuser/mlartifacts/3/models/m-5487e19c80df4c7ebf7eca83abbdf887/artifacts/MLmodel
+/home/azureuser/mlartifacts/3/models/m-5487e19c80df4c7ebf7eca83abbdf887/artifacts/model.pkl
+/home/azureuser/mlartifacts/3/models/m-5487e19c80df4c7ebf7eca83abbdf887/artifacts/requirements.txt
+/home/azureuser/mlartifacts/3/models/m-5487e19c80df4c7ebf7eca83abbdf887/artifacts/python_env.yaml
+/home/azureuser/mlartifacts/3/models/m-5487e19c80df4c7ebf7eca83abbdf887/artifacts/conda.yaml
+--------------------------
+
+sqlite3 /home/azureuser/mldb/mlflow.db "select experiment_id, name, artifact_location from experiments order by experiment_id;"
+
+>>>expected output:
+
+0|Default|/mlflow/artifacts/0
+1|mlops-production-iris|/mlflow/artifacts/1
+2|mlops-production-iris-remote|/mlflow/artifacts/2
+3|mlops-production-iris-remote1-|mlflow-artifacts:/3
+---------------
+
+sqlite3 /home/azureuser/mldb/mlflow.db "select run_uuid, artifact_uri from runs order by start_time desc limit 5;"
+
+>> expected o/p:
+
+360d485c204d4559b9ca78c56d0f7475|mlflow-artifacts:/3/360d485c204d4559b9ca78c56d0f7475/artifacts
+
+--------------
+
 
