@@ -620,8 +620,24 @@ After only api code change
 dcoker-compose build api
 docker compose up -d api
 
+docker-compose start (restart the same container, which were stopped)
+docker-compose stop (only stop container)
+docker-compose up remove containers, netwroks)
 
-docker-compose down
+## debug
+
+docker-compose run --rm -it debug sh:
+ or if debug s already running then
+ docker exec -it debug sh
+
+ inside container:
+
+ verify docker internal DNS
+
+ ping -c 2 mlflow
+ ping -c 2 api
+
+
 
 
 
