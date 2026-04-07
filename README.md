@@ -605,11 +605,25 @@ if docker-compose or docker compose which ever works use that only in below comm
 
 docker compose build
 docker compose up -d mlflow api
-docker compose run --rm train
 
+docker-compose build train
+docker-compose --profile training build
+docker compose run --rm train
 docker compose --profile training up 
 
+dcoker-compose build
+docker-compose build train
+docker compose up -d
+docker compose run --rm train
+
+After only api code change
+dcoker-compose build api
+docker compose up -d api
+
+
 docker-compose down
+
+
 
 
 
