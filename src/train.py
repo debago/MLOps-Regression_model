@@ -44,7 +44,7 @@ def train_model():
         random_state=42
     )
 
-    with mlflow.start_run(run_name="rf-training"):
+    with mlflow.start_run(run_name="rf-training") as run:
 
         #Train
         model.fit(X_train, y_train)
@@ -61,12 +61,22 @@ def train_model():
         mlflow.log_param("n_estimators", params["model"]["n_estimators"])
         mlflow.log_artifact("params.yaml")
 
-        # Log model to MLflow and register
+
+        # Log model to and artifact store, then register to model registry
+
+#         mlflow.sklearn.log_model(model, name="model")
+
+#         mlflow.register_model(
+#             model_uri=f"runs:/{run.info.run_id}/model",
+#             name=params["mlflow"]["registered_model_name"]
+# )
+
+        # # Log model to MLflow and register
         mlflow.sklearn.log_model(
             model,
-            "model",
+            name="model",
             registered_model_name=params["mlflow"]["registered_model_name"]
-        )
+                    )
         print("Artifact URI: " + mlflow.get_artifact_uri())
         print("tracking URI: " + mlflow.get_tracking_uri())
 

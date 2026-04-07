@@ -168,6 +168,7 @@ docker build -t ml-api ./api
 # Start FastAPI Container:
 
 docker run -d -p 8000:8000 \
+    -u $(id -u):$(id -g) \
     --name ml-api-container \
     -e MLFLOW_TRACKING_URI=http://<vm-ip>:5000 \
     -e MODEL_URI=models:/iris-model@latest \
@@ -543,7 +544,58 @@ sqlite3 /home/azureuser/mldb/mlflow.db "select run_uuid, artifact_uri from runs 
 
 docker build -t ml-train -f train.Dockerfile .
 
-docker run -e MLFLOW_TRACKING_URI=http://40.75.103.57:5000 \
-    -v /home/azuereuser/data:/app/data \
+docker run --rm --name ml-train-container \
+    -u $(id -u):$(id -g) \
+    -e MLFLOW_TRACKING_URI=http://40.75.103.57:5000 \
+    -v /home/azureuser/MLOps-Regression_model/data:/app/data \
     ml-train
+
+
+# Cron job example:
+Check Docker path:
+
+azureuser@vm26:~/MLOps-Regression_model$ which docker
+/usr/bin/docker
+
+
+login to VM --Open crontab (crontab -e)---Choose editor: nano
+
+add training job to schedule every day at 2AM:
+
+0 2 * * * /usr/bin/docker run --rm --name ml-train-container \
+    -u $(id -u):$(id -g) \
+    -e MLFLOW_TRACKING_URI=http://40.75.103.57:5000 \
+    -v /home/azureuser/MLOps-Regression_model/data:/app/data \
+    ml-train \
+    python3 -m src.pipeine >> /home/azureuser/train.log 2>&1
+
+
+# test Immidiately:
+
+* * * * * /usr/bin/docker run --rm --name ml-train-container \
+    -u $(id -u):$(id -g) \
+    -e MLFLOW_TRACKING_URI=http://40.75.103.57:5000 \
+    -v /home/azureuser/MLOps-Regression_model/data:/app/data \
+    ml-train >> /home/azureuser/train.log 2>&1
+
+# working Nano editor:
+
+write --> save (Ctrl+O)--ENTER--exit(Ctrl+X)
+
+# verify the commands after saving:
+
+crontab -l 
+
+# Check logs after execution:
+
+cat /home/azureuser/train.log
+
+# to stop/delete/disable
+
+Just remove the commands, comment out etc
+
+
+# profiles in Docker-compose means service will not run by default. Only ru it when explicitly requested.
+
+
 

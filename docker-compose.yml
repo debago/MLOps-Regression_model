@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+
+  mlflow:
+    build:
+      context: .
+      dockerfile: mlflow/Dockerfile
+    containers_name: mlflow
+    ports:
+      - "5000:5000"
+    volumes:
+      - /home/azureuser/mldb:/mlflow/db
+      - /home/azureuser/mlartifacts:/mlflow/artifacts
+    restart: unless-stopped
+    
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile.rootcontext
+    container_name: api
+    ports:
+      - "8000:8000"
+    environment:
+      - MLFLOW_TRACKING_URI: http://mlflow:5000
+      - MODEL_URI: models:/iris-model@latest
+    depends_on:
+      - mlflow
+    restart: unless-stopped
+  
+  train:
+    build:
+      context: .
+      dockerfile: train/Dockerfile
+    container_name: train
+    environment:
+      - MLFLOW_TRACKING_URI: http://mlflow:5000
+    volumes:
+      -/home/azureuser/MLOps-Regression_model/data:/app/data
+    profiles:
+      - Training

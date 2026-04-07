@@ -1,4 +1,4 @@
-# Build context is ./api
+# Build context is root, so we can copy from api/ and also have access to mlflow server if needed
 
 FROM python:3.11-slim
 
@@ -7,12 +7,14 @@ WORKDIR /app
 # Install system deps (needed sometimes for sklearn)
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
-# Copy files
-COPY . .
-
+COPY api/requirements.txt .
 
 # Install Python deps
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy files
+COPY api ./api
+
 
 # Expose port
 EXPOSE 8000
@@ -27,5 +29,4 @@ HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
 
 # Start API
 ENTRYPOINT ["uvicorn"]
-CMD ["app:app", "--host", "0.0.0.0", "--port", "8000"]
-
+CMD ["api.app:app", "--host", "0.0.0.0", "--port", "8000"]
