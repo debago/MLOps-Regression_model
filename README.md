@@ -594,8 +594,22 @@ cat /home/azureuser/train.log
 
 Just remove the commands, comment out etc
 
+# docker compose:
 
-# profiles in Docker-compose means service will not run by default. Only ru it when explicitly requested.
+profiles in Docker-compose means service will not run by default. Only ru it when explicitly requested.
+
+docker-compose --version
+docker composer version
+
+if docker-compose or docker compose which ever works use that only in below commands
+
+docker compose build
+docker compose up -d mlflow api
+docker compose run --rm train
+
+docker compose --profile training up 
+
+docker-compose down
 
 
 

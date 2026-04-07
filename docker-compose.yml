@@ -22,8 +22,8 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - MLFLOW_TRACKING_URI: http://mlflow:5000
-      - MODEL_URI: models:/iris-model@latest
+      - MLFLOW_TRACKING_URI: "http://mlflow:5000"
+      - MODEL_URI: "models:/iris-model@latest"
     depends_on:
       - mlflow
     restart: unless-stopped
@@ -34,8 +34,8 @@ services:
       dockerfile: train/Dockerfile
     container_name: train
     environment:
-      - MLFLOW_TRACKING_URI: http://mlflow:5000
+      - MLFLOW_TRACKING_URI: "http://mlflow:5000"
     volumes:
-      -/home/azureuser/MLOps-Regression_model/data:/app/data
+      - /home/azureuser/MLOps-Regression_model/data:/app/data
     profiles:
       - Training
