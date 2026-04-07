@@ -1011,6 +1011,50 @@ docker-compose ps
 docker-compose logs -f mlflow
 docker-compose logs -f api
 
+Network
+docker-compose run --rm -it debug sh
+wget -qO- http://mlflow:5000
+wget -qO- http://api:8000/docs
+API model loading
+docker exec -it api sh
+env | grep MLFLOW
+env | grep MODEL
+python -c "import os, mlflow; mlflow.set_tracking_uri(os.getenv('MLFLOW_TRACKING_URI')); print(mlflow.pyfunc.load_model(os.getenv('MODEL_URI')))"
+MLflow storage
+docker exec -it mlflow sh
+ls -la /mlflow/db
+ls -la /mlflow/artifacts
+find /mlflow/artifacts -maxdepth 6 -type f | head -50
+sqlite3 /home/azureuser/mldb/mlflow.db "select experiment_id, name, artifact_location from experiments;"
+sqlite3 /home/azureuser/mldb/mlflow.db "select run_uuid, artifact_uri from runs order by start_time desc limit 5;"
+End-to-end
+curl -X POST http://127.0.0.1:8000/predict \
+  -H "Content-Type: application/json" \
+  -d '{"data":[[5.1,3.5,1.4,0.2]]}'
+
+If you want, I’ll regenerate the downloadable file with the full 20-point version.Network
+docker-compose run --rm -it debug sh
+wget -qO- http://mlflow:5000
+wget -qO- http://api:8000/docs
+API model loading
+docker exec -it api sh
+env | grep MLFLOW
+env | grep MODEL
+python -c "import os, mlflow; mlflow.set_tracking_uri(os.getenv('MLFLOW_TRACKING_URI')); print(mlflow.pyfunc.load_model(os.getenv('MODEL_URI')))"
+MLflow storage
+docker exec -it mlflow sh
+ls -la /mlflow/db
+ls -la /mlflow/artifacts
+find /mlflow/artifacts -maxdepth 6 -type f | head -50
+sqlite3 /home/azureuser/mldb/mlflow.db "select experiment_id, name, artifact_location from experiments;"
+sqlite3 /home/azureuser/mldb/mlflow.db "select run_uuid, artifact_uri from runs order by start_time desc limit 5;"
+End-to-end
+curl -X POST http://127.0.0.1:8000/predict \
+  -H "Content-Type: application/json" \
+  -d '{"data":[[5.1,3.5,1.4,0.2]]}'
+
+
+
 
 
 
