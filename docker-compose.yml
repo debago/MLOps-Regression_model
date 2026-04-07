@@ -43,3 +43,10 @@ services:
       - /home/azureuser/MLOps-Regression_model/data:/app/data
     profiles:
       - Training
+    
+  debug:
+    image: nicolaka/netshoot:latest
+    container_name: debug
+    command: ["sh", "-c", "while true; do sleep 3600; done"]
+    profiles:
+      - debug
