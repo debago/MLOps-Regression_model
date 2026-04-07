@@ -6,7 +6,7 @@ services:
     build:
       context: .
       dockerfile: mlflow/Dockerfile
-    image: mlflow-compose:latest  
+    image: iris-mlflow:latest  
     container_name: mlflow
 
     ports:
@@ -20,7 +20,7 @@ services:
     build:
       context: .
       dockerfile: api/Dockerfile.rootcontext
-    image: api-compose:latest
+    image: iris-api:latest
     container_name: api
     ports:
       - "8000:8000"
@@ -35,7 +35,7 @@ services:
     build:
       context: .
       dockerfile: train/Dockerfile
-    image: train-compose:latest
+    image: iris-train:latest
     container_name: train
     environment:
       MLFLOW_TRACKING_URI: "http://mlflow:5000"
