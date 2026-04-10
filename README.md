@@ -22,7 +22,7 @@ mlops-project/
 |
 |── data/
 ├── docker-compose.yml
-├── docker-compose.yml          # base
+├── docker-compose-base.yml          # base
 ├── docker-compose.dev.yml      # dev override
 ├── docker-compose.prod.yml     # prod override
 │
@@ -638,6 +638,33 @@ docker-compose stop (only stop container)
 docker-compose up remove containers, netwroks)
 
 docker-compose ps
+
+# docker-compose with override and env file:
+
+How to run
+🧪 DEV
+docker-compose --env-file .env.dev \
+  -f docker-compose.yml \
+  -f docker-compose.dev.yml up -d
+
+Run trainer:
+
+docker-compose --env-file .env.dev run --rm trainer
+
+🚀 PROD
+docker-compose --env-file .env.prod \
+  -f docker-compose.yml \
+  -f docker-compose.prod.yml pull
+
+docker-compose --env-file .env.prod \
+  -f docker-compose.yml \
+  -f docker-compose.prod.yml up -d
+
+Run trainer:
+
+docker-compose --env-file .env.prod run --rm trainer
+
+
 
 ## debug
 

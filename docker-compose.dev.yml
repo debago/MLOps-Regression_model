@@ -15,5 +15,5 @@ services:
   trainer:
     build:
     context: .
-    dockerfile: Dockerfile.train
+    dockerfile: Dockerfile
     image: iris-train:dev
