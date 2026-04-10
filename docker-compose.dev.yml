@@ -2,18 +2,18 @@ services:
 
   mlflow:
     build:
-    context: .
-    dockerfile: mlflow/Dockerfile
+      context: .
+      dockerfile: mlflow/Dockerfile
     image: mlflow-server:dev
 
   api:
     build:
-    context: ./api
-    dockerfile: Dockerfile
+      context: ./api
+      dockerfile: Dockerfile
     image: iris-api:dev
 
   trainer:
     build:
-    context: .
-    dockerfile: Dockerfile
+      context: .
+      dockerfile: Dockerfile
     image: iris-train:dev
