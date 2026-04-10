@@ -15,8 +15,8 @@ services:
     ports:
     - "${API_PORT}:8000"
     environment:
-    MLFLOW_TRACKING_URI: ${MLFLOW_TRACKING_URI}
-    MODEL_URI: ${MODEL_URI}
+      MLFLOW_TRACKING_URI: "${MLFLOW_TRACKING_URI}"
+      MODEL_URI: "${MODEL_URI}"
     depends_on:
     - mlflow
 
@@ -24,6 +24,6 @@ services:
     profiles:
     - train
     environment:
-    MLFLOW_TRACKING_URI: ${MLFLOW_TRACKING_URI}
+      MLFLOW_TRACKING_URI: "${MLFLOW_TRACKING_URI}"
     volumes:
     - ${DATA_PATH}:/app/data
