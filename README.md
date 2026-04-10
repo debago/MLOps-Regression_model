@@ -644,12 +644,15 @@ docker-compose ps
 How to run
 🧪 DEV
 docker-compose --env-file .env.dev \
-  -f docker-compose.yml \
+  -f docker-compose-base.yml \
   -f docker-compose.dev.yml up -d
 
 Run trainer:
 
-docker-compose --env-file .env.dev run --rm trainer
+docker-compose --env-file .env.dev \
+  -f docker-compose-base.yml \
+  -f docker-compose.dev.yml \
+  run --rm trainer
 
 🚀 PROD
 docker-compose --env-file .env.prod \
