@@ -645,12 +645,12 @@ How to run
 🧪 DEV
 
 docker-compose --env-file .env.dev \
-  -f docker-compose.yml \
+  -f docker-compose-base.yml \
   -f docker-compose.dev.yml \
   build
 
 docker-compose --env-file .env.dev \
-  -f docker-compose.yml \
+  -f docker-compose-base.yml \
   -f docker-compose.dev.yml \
   run --rm trainer
 
@@ -667,17 +667,17 @@ docker-compose --env-file .env.dev \
 
 🚀 PROD
 docker-compose --env-file .env.prod \
-  -f docker-compose.yml \
+  -f docker-compose-base.yml \
   -f docker-compose.prod.yml pull
 
 docker-compose --env-file .env.prod \
-  -f docker-compose.yml \
+  -f docker-compose-base.yml \
   -f docker-compose.prod.yml up -d
 
 
 # create alias:
 
-alias dcdev='docker-compose --env-file .env.dev -f docker-compose.yml -f docker-compose.dev.yml'
+alias dcdev='docker-compose --env-file .env.dev -f docker-compose-base.yml -f docker-compose.dev.yml'
 
 dcdev build
 dcdev up -d
@@ -1110,6 +1110,17 @@ docker login -u <username>
 docker tag mlops-regression_model_api:latest debago/iris-api:v1
 docker push debago/iris-api:v1
 
+
+## DB schema upgrade isssue:
+
+run in seqence:
+
+docker-compose stop mlflow or
+docker stop mlflow
+cp /home/azureuser/mldb/mlflow.db /home/azureuser/mldb/mlflow.db.bak
+docker run --rm -u $(id -u):$(id -g) -v /home/azureuser/mldb:/mlflow/db mlflow-server:latest db upgrade sqlite:////mlflow/db/mlflow.db
+docker-compose up -d mlflow
+docker logs mlflow --tail 50
 
 
 

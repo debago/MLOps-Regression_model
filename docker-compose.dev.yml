@@ -9,7 +9,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: Dockerfile.rootcontext
+      dockerfile: api/Dockerfile.rootcontext
     image: iris-api:dev
 
   trainer:
