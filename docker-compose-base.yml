@@ -21,6 +21,7 @@ services:
     - mlflow
 
   trainer:
+    container_name: trainer
     profiles:
     - train
     environment:

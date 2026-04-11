@@ -643,6 +643,17 @@ docker-compose ps
 
 How to run
 🧪 DEV
+
+docker-compose --env-file .env.dev \
+  -f docker-compose.yml \
+  -f docker-compose.dev.yml \
+  build
+
+docker-compose --env-file .env.dev \
+  -f docker-compose.yml \
+  -f docker-compose.dev.yml \
+  run --rm trainer
+
 docker-compose --env-file .env.dev \
   -f docker-compose-base.yml \
   -f docker-compose.dev.yml up -d
@@ -663,10 +674,14 @@ docker-compose --env-file .env.prod \
   -f docker-compose.yml \
   -f docker-compose.prod.yml up -d
 
-Run trainer:
 
-docker-compose --env-file .env.prod run --rm trainer
+# create alias:
 
+alias dcdev='docker-compose --env-file .env.dev -f docker-compose.yml -f docker-compose.dev.yml'
+
+dcdev build
+dcdev up -d
+dcdev run --rm trainer
 
 
 ## debug
