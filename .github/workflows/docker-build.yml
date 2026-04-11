@@ -23,11 +23,11 @@ steps:
 
 - name: Build API Image
   run: |
-    docker build -t $DOCKER_USERNAME/iris-api:latest -f api/Dockerfile.rootcontext .
+    docker build -t $DOCKER_USERNAME/iris-api:dev -f api/Dockerfile.rootcontext .
 
 - name: Build Trainer Image
   run: |
-    docker build -t $DOCKER_USERNAME/iris-train:latest -f train/Dockerfile .
+    docker build -t $DOCKER_USERNAME/iris-train:dev -f train/Dockerfile .
 
 - name: Push API Image
   run: docker push $DOCKER_USERNAME/iris-api:dev
