@@ -1,7 +1,7 @@
 services:
 
   mlflow:
-    image: ${DOCKER_USERNAME}/mlflow-server:${TAG}
+    image: ${DOCKER_USERNAME}/iris-mlflow:${TAG}
 
   api:
     image: ${DOCKER_USERNAME}/iris-api:${TAG}

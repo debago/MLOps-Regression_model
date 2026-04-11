@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: mlflow/Dockerfile
-    image: mlflow-server:dev
+    image: iris-mlflow:dev
 
   api:
     build:
