@@ -32,11 +32,16 @@ jobs:
       - name: Build Trainer
         run: |
           docker build -t $DOCKER_USERNAME/iris-train:${IMAGE_TAG} -f train/Dockerfile .
+        
+      - name: Build MLFLOW
+        run: |
+          docker build -t $DOCKER_USERNAME/iris-mlflow:${IMAGE_TAG} -f mlflow/Dockerfile .
 
       - name: Push Images
         run: |
           docker push $DOCKER_USERNAME/iris-api:${IMAGE_TAG}
           docker push $DOCKER_USERNAME/iris-train:${IMAGE_TAG}
+          docker push $DOCKER_USERNAME/iris-mlflow:${IMAGE_TAG}
 
 # # -----------------------
 # # DEPLOY DEV
