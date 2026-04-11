@@ -1,37 +1,37 @@
 name: Build and Push Docker Images
 
 on:
-push:
-branches:
-- main
+  push:
+    branches:
+      - main
 
 env:
-DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
 jobs:
-build-and-push:
-runs-on: ubuntu-latest
+  build-and-push:
+    runs-on: ubuntu-latest
 
-steps:
-- name: Checkout Code
-  uses: actions/checkout@v3
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-- name: Login to Docker Hub
-  run: |
-    echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+      - name: Login to Docker Hub
+        run: |
+          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
 
-- name: Build API Image
-  run: |
-    docker build -t $DOCKER_USERNAME/iris-api:dev -f api/Dockerfile.rootcontext .
+      - name: Build API Image
+        run: |
+          docker build -t $DOCKER_USERNAME/iris-api:dev -f api/Dockerfile.rootcontext .
 
-- name: Build Trainer Image
-  run: |
-    docker build -t $DOCKER_USERNAME/iris-train:dev -f train/Dockerfile .
+      - name: Build Trainer Image
+        run: |
+          docker build -t $DOCKER_USERNAME/iris-train:dev -f train/Dockerfile .
 
-- name: Push API Image
-  run: docker push $DOCKER_USERNAME/iris-api:dev
+      - name: Push API Image
+        run: docker push $DOCKER_USERNAME/iris-api:dev
 
-- name: Push Trainer Image
-  run: docker push $DOCKER_USERNAME/iris-train:dev
+      - name: Push Trainer Image
+        run: docker push $DOCKER_USERNAME/iris-train:dev
 
