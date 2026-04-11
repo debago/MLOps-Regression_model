@@ -31,7 +31,7 @@ jobs:
 
       - name: Build Trainer
         run: |
-          docker build -t $DOCKER_USERNAME/iris-train:${IMAGE_TAG} -f trainer/Dockerfile .
+          docker build -t $DOCKER_USERNAME/iris-train:${IMAGE_TAG} -f train/Dockerfile .
 
       - name: Push Images
         run: |
