@@ -60,6 +60,7 @@ jobs:
           script: |
             cd /home/azureuser/MLOps-Regression_model
             export TAG=${{ github.sha }}
+            docker-compose --env-file .env.dev -f docker-compose-base.yml -f docker-compose.prod.yml config
             docker-compose --env-file .env.dev -f docker-compose-base.yml -f docker-compose.prod.yml pull
             docker-compose --env-file .env.dev -f docker-compose-base.yml -f docker-compose.prod.yml up -d
             # docker-compose --env-file .env.dev pull
