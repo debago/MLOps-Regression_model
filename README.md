@@ -1201,11 +1201,18 @@ print(urllib.request.urlopen('http://mlflow:5000').status)"
 
 kubectl logs deployment/api -n mlops
 
+kubectl get svc -n mlops
+-------------------------------------------
 
+# Run trainer jobs
 
+kubectl apply -f k8s
 
-----------------------------------------
+# validate:
 
+kubectl get  jobs -n mlops
+kubectl get pods -n mlops
+kubectl logs job/trainer -n mlops
 
 
 

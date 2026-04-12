@@ -56,6 +56,19 @@ jobs:
         run: |
           echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u $DOCKER_USERNAME --password-stdin
 
+
+      - name: Promote Image to TEST
+        run: |
+          docker pull $DOCKER_USERNAME/iris-api:${IMAGE_TAG}
+          docker tag $DOCKER_USERNAME/iris-api:${IMAGE_TAG} $DOCKER_USERNAME/iris-api:dev
+          docker push $DOCKER_USERNAME/iris-api:dev
+          docker pull $DOCKER_USERNAME/iris-mlflow:${IMAGE_TAG}
+          docker tag $DOCKER_USERNAME/iris-mlflow:${IMAGE_TAG} $DOCKER_USERNAME/iris-mlflow:dev
+          docker push $DOCKER_USERNAME/iris-mlflow:dev
+          docker pull $DOCKER_USERNAME/iris-train:${IMAGE_TAG}
+          docker tag $DOCKER_USERNAME/iris-train:${IMAGE_TAG} $DOCKER_USERNAME/iris-train:dev
+          docker push $DOCKER_USERNAME/iris-train:dev
+
       - name: Deploy to DEV
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -63,16 +76,6 @@ jobs:
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
-            docker pull $DOCKER_USERNAME/iris-api:${IMAGE_TAG}
-            docker tag $DOCKER_USERNAME/iris-api:${IMAGE_TAG} $DOCKER_USERNAME/iris-api:dev
-            docker push $DOCKER_USERNAME/iris-api:dev
-            docker pull $DOCKER_USERNAME/iris-mlflow:${IMAGE_TAG}
-            docker tag $DOCKER_USERNAME/iris-mlflow:${IMAGE_TAG} $DOCKER_USERNAME/iris-mlflow:dev
-            docker push $DOCKER_USERNAME/iris-mlflow:dev
-            docker pull $DOCKER_USERNAME/iris-train:${IMAGE_TAG}
-            docker tag $DOCKER_USERNAME/iris-train:${IMAGE_TAG} $DOCKER_USERNAME/iris-train:dev
-            docker push $DOCKER_USERNAME/iris-train:dev
-
             cd /home/azureuser/MLOps-Regression_model
             git pull
             #export TAG=${{ github.sha }}
