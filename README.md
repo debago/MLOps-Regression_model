@@ -1192,6 +1192,14 @@ inside the pod test MLFLOW:
 
 wget -qO- http://mlflow:5000
 
+if wget is unavailable, use python:
+
+python -c "Import urllib.request;
+print(urllib.request.urlopen('http://mlflow:5000').status)"
+
+# Check API logs now:
+
+kubectl logs deployment/api -n mlops
 
 
 
