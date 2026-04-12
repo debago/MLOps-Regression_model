@@ -64,7 +64,6 @@ jobs:
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
             cd /home/azureuser/MLOps-Regression_model
-            git pull
             docker pull $DOCKER_USERNAME/iris-api:${IMAGE_TAG}
             docker tag $DOCKER_USERNAME/iris-api:${IMAGE_TAG} $DOCKER_USERNAME/iris-api:dev
             docker push $DOCKER_USERNAME/iris-api:dev
@@ -75,6 +74,7 @@ jobs:
             docker tag $DOCKER_USERNAME/iris-train:${IMAGE_TAG} $DOCKER_USERNAME/iris-train:dev
             docker push $DOCKER_USERNAME/iris-train:dev
 
+            git pull
             #export TAG=${{ github.sha }}
             docker-compose --env-file .env.dev -f docker-compose-base.yml -f docker-compose.prod.yml config
             docker-compose --env-file .env.dev -f docker-compose-base.yml -f docker-compose.prod.yml pull

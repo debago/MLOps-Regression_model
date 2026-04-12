@@ -1172,10 +1172,34 @@ kubectl apply -f .\k8s\mlflow-service.yml
 
 kubectl delete -f .\k8s\api-deployment.yml
 
-After deployment verify:
+--------------------------------
+# After deployment verify:
 
 kubectl get pods -n mlops
 kubectll get svc -n mlops
+kubectl logs deployment/mlflow -n mlops
+
+# verify api can reach Mlflow:
+
+first :Check pod name 
+kubectl get pods -n mlops -l app=api
+
+login into pod:
+
+kubectl exec -it <api-pod-name> -n mlops -- sh
+
+inside the pod test MLFLOW:
+
+wget -qO- http://mlflow:5000
+
+
+
+
+
+----------------------------------------
+
+
+
 
 
 Kubectl get pods -n mlops --show-labels
