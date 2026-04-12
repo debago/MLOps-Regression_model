@@ -51,6 +51,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+      - name: Login Docker Hub
+        run: |
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u $DOCKER_USERNAME --password-stdin
+
       - name: Deploy to DEV
         uses: appleboy/ssh-action@v1.0.3
         with:
