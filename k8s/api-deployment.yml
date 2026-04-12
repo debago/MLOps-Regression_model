@@ -1,0 +1,27 @@
+# Step 2: Deployment:
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: mlops
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api  #important
+  template:
+    metadata:
+      labels:
+        app: api  #must match the selector
+    spec:
+      containers:
+      - name: api
+        image: debago/iris-api:dev
+        ports:
+        - containerPort: 8000
+        env:
+        - name: MLFLOW_TRACKING_URI
+          value: "http://mlflow:5000"
+        - name: MODEL_URI
+          value: "models:/iris-model@latest"

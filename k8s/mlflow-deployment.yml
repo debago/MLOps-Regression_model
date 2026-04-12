@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow
+  namespace: mlops
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mlflow
+  template:
+    metadata:
+      labels:
+        app: mlflow
+    spec:
+      containers:
+      - name: mlflow
+        image: debago/iris-mlflow:dev
+        ports:
+        - containerPort: 5000
+        command: ["mlflow"]   # To override default entrypoint in the Dockerfile
+        args:                 # To override default command in the Dockerfile
+          - server
+          - --backend-store-uri
+          - sqlite:////mlflow/db/mlflow.db
+          - --artifacts-destination
+          - /mlflow/artifacts
+          - --serve-artifacts
+          - --allowed-hosts
+          - "*"
+          - --host
+          - 0.0.0.0
+          - --port
+          - "5000"
+          

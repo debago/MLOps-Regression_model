@@ -1123,8 +1123,75 @@ docker-compose up -d mlflow
 docker logs mlflow --tail 50
 
 
+# AKS create:
+az version
+az login
+az aks install-cli
+kubectl version --client
+
+Powershell:
+
+az account list -o table
+az account set --subscription <subscription name/id>
+
+# Create Resource group
+az group create `
+  --name mlops-rg `
+  --location eastus
+
+# Create AKS cluster:
+
+az aks create `
+  --resource-group mlops-rg `
+  --name mlops-aks `
+  --node-count 1 `
+  --node-vm-size Standard_B2s `
+  --enable-managed-identity `
+  --generate-ssh-keys
+
+# Get credentials: (connect kubectl)
+
+az aks get-credentials `
+  --resource-group mlops-rg `
+  --name mlops-aks
+
+# verify cluster:
+
+kubectl get nodes
+
+# Create namespace:
+
+kubectl create namespace mlops
+
+# deploy api-deployment
+
+kubectl apply -f .\k8s\api-deployment.yml
+kubectl apply -f .\k8s\api-service.yml
+kubectl apply -f .\k8s\mlflow-deployment.yml
+kubectl apply -f .\k8s\mlflow-service.yml
+
+kubectl delete -f .\k8s\api-deployment.yml
+
+After deployment verify:
+
+kubectl get pods -n mlops
+kubectll get svc -n mlops
 
 
+Kubectl get pods -n mlops --show-labels
+kubectl get endpoints -n mlops
 
+Expected o/p: api-service  <pod-ip>:8000 if empty, labels mismatch
 
+Debug commands:
+
+kubectl describe svc api-service -n mlops
+
+Golden rule:
+
+Deployment lables == Service selector
+
+kubectl get all -n mlops
+kubectl delete all --all -n mlops
+kubectl delete namespace mlops   # it deletes everything inside the namespace
 

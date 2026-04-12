@@ -59,7 +59,15 @@ jobs:
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
             cd /home/azureuser/MLOps-Regression_model
-            export TAG=${{ github.sha }}
+            git pull
+            docker tag $DOCKER_USERNAME/iris-api:${IMAGE_TAG} $DOCKER_USERNAME/iris-api:dev
+            docker push $DOCKER_USERNAME/iris-api:dev
+            docker tag $DOCKER_USERNAME/iris-mlflow:${IMAGE_TAG} $DOCKER_USERNAME/iris-mlflow:dev
+            docker push $DOCKER_USERNAME/iris-mlflow:dev
+            docker tag $DOCKER_USERNAME/iris-train:${IMAGE_TAG} $DOCKER_USERNAME/iris-train:dev
+            docker push $DOCKER_USERNAME/iris-train:dev
+
+            #export TAG=${{ github.sha }}
             docker-compose --env-file .env.dev -f docker-compose-base.yml -f docker-compose.prod.yml config
             docker-compose --env-file .env.dev -f docker-compose-base.yml -f docker-compose.prod.yml pull
             docker-compose --env-file .env.dev -f docker-compose-base.yml -f docker-compose.prod.yml up -d
@@ -69,83 +77,83 @@ jobs:
 # # -----------------------
 # # PROMOTE TO TEST
 # # -----------------------
-  # promote-test:
-  #   needs: deploy-dev
-  #   runs-on: ubuntu-latest
+  promote-test:
+    needs: deploy-dev
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - name: Login Docker Hub
-  #       run: |
-  #         echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u $DOCKER_USERNAME --password-stdin
+    steps:
+      - name: Login Docker Hub
+        run: |
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u $DOCKER_USERNAME --password-stdin
 
-  #     - name: Promote Image to TEST
-  #       run: |
-  #         docker pull $DOCKER_USERNAME/iris-api:${IMAGE_TAG}
-  #         docker tag $DOCKER_USERNAME/iris-api:${IMAGE_TAG} $DOCKER_USERNAME/iris-api:test
-  #         docker push $DOCKER_USERNAME/iris-api:test
+      - name: Promote Image to TEST
+        run: |
+          docker pull $DOCKER_USERNAME/iris-api:${IMAGE_TAG}
+          docker tag $DOCKER_USERNAME/iris-api:${IMAGE_TAG} $DOCKER_USERNAME/iris-api:test
+          docker push $DOCKER_USERNAME/iris-api:test
 
-  #         docker pull $DOCKER_USERNAME/iris-train:${IMAGE_TAG}
-  #         docker tag $DOCKER_USERNAME/iris-train:${IMAGE_TAG} $DOCKER_USERNAME/iris-train:test
-  #         docker push $DOCKER_USERNAME/iris-train:test
+          docker pull $DOCKER_USERNAME/iris-train:${IMAGE_TAG}
+          docker tag $DOCKER_USERNAME/iris-train:${IMAGE_TAG} $DOCKER_USERNAME/iris-train:test
+          docker push $DOCKER_USERNAME/iris-train:test
 
 # -----------------------
 # DEPLOY TEST
 # -----------------------
-  # deploy-test:
-  #   needs: promote-test
-  #   runs-on: ubuntu-latest
+  deploy-test:
+    needs: promote-test
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - name: Deploy to TEST
-  #       uses: appleboy/ssh-action@v1.0.3
-  #       with:
-  #         host: ${{ secrets.TEST_VM_HOST }}
-  #         username: ${{ secrets.VM_USER }}
-  #         key: ${{ secrets.VM_SSH_KEY }}
-  #         script: |
-  #           cd /home/azureuser/MLOps-Regression_model
-  #           export TAG=test
-  #           docker-compose --env-file .env.test pull
-  #           docker-compose --env-file .env.test up -d
+    steps:
+      - name: Deploy to TEST
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.TEST_VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          script: |
+            cd /home/azureuser/MLOps-Regression_model
+            export TAG=test
+            docker-compose --env-file .env.tes -f docker-compose-base.yml -f docker-compose.prod.yml pull
+            docker-compose --env-file .env.tes -f docker-compose-base.yml -f docker-compose.prod.yml up -d
 
 # -----------------------
 # PROMOTE TO PROD
 # -----------------------
-  # promote-prod:
-  #   needs: deploy-test
-  #   runs-on: ubuntu-latest
+  promote-prod:
+    needs: deploy-test
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - name: Login Docker Hub
-  #       run: |
-  #         echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u $DOCKER_USERNAME --password-stdin
+    steps:
+      - name: Login Docker Hub
+        run: |
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u $DOCKER_USERNAME --password-stdin
 
-  #     - name: Promote Image to PROD
-  #       run: |
-  #         docker pull $DOCKER_USERNAME/iris-api:${IMAGE_TAG}
-  #         docker tag $DOCKER_USERNAME/iris-api:${IMAGE_TAG} $DOCKER_USERNAME/iris-api:prod
-  #         docker push $DOCKER_USERNAME/iris-api:prod
+      - name: Promote Image to PROD
+        run: |
+          docker pull $DOCKER_USERNAME/iris-api:${IMAGE_TAG}
+          docker tag $DOCKER_USERNAME/iris-api:${IMAGE_TAG} $DOCKER_USERNAME/iris-api:prod
+          docker push $DOCKER_USERNAME/iris-api:prod
 
-  #         docker pull $DOCKER_USERNAME/iris-train:${IMAGE_TAG}
-  #         docker tag $DOCKER_USERNAME/iris-train:${IMAGE_TAG} $DOCKER_USERNAME/iris-train:prod
-  #         docker push $DOCKER_USERNAME/iris-train:prod
+          docker pull $DOCKER_USERNAME/iris-train:${IMAGE_TAG}
+          docker tag $DOCKER_USERNAME/iris-train:${IMAGE_TAG} $DOCKER_USERNAME/iris-train:prod
+          docker push $DOCKER_USERNAME/iris-train:prod
 
 # # -----------------------
 # # DEPLOY PROD
 # # -----------------------
-  # deploy-prod:
-  #   needs: promote-prod
-  #   runs-on: ubuntu-latest
+  deploy-prod:
+    needs: promote-prod
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - name: Deploy to PROD
-  #       uses: appleboy/ssh-action@v1.0.3
-  #       with:
-  #         host: ${{ secrets.PROD_VM_HOST }}
-  #         username: ${{ secrets.VM_USER }}
-  #         key: ${{ secrets.VM_SSH_KEY }}
-  #         script: |
-  #           cd /home/azureuser/MLOps-Regression_model
-  #           export TAG=prod
-  #           docker-compose --env-file .env.prod pull
-  #           docker-compose --env-file .env.prod up -d
+    steps:
+      - name: Deploy to PROD
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PROD_VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          script: |
+            cd /home/azureuser/MLOps-Regression_model
+            export TAG=prod
+            docker-compose --env-file .env.prod -f docker-compose-base.yml -f docker-compose.prod.yml pull
+            docker-compose --env-file .env.prod -f docker-compose-base.yml -f docker-compose.prod.yml up -d
