@@ -27,7 +27,7 @@ jobs:
 
       - name: Build API
         run: |
-          docker build -t $DOCKER_USERNAME/iris-api:${IMAGE_TAG} -f api/Dockerfile .
+          docker build -t $DOCKER_USERNAME/iris-api:${IMAGE_TAG} -f api/Dockerfile.rootcontext .
 
       - name: Build Trainer
         run: |
