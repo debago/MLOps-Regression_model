@@ -4,7 +4,7 @@ metadata:
   name: mlflow
   namespace: mlops
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: mlflow
@@ -13,9 +13,17 @@ spec:
       labels:
         app: mlflow
     spec:
+      initContainers:
+      - name: init-mlflow-dirs
+        image: busybox
+        command: ["sh", "-c", "mkdir -p /mlflow/db && mkdir -p /mlflow/artifacts"]
+        volumeMounts:
+        - name: mlflow-storage
+          mountPath: /mlflow
       containers:
       - name: mlflow
         image: debago/iris-mlflow:dev
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         command: ["mlflow"]   # To override default entrypoint in the Dockerfile
@@ -32,4 +40,20 @@ spec:
           - 0.0.0.0
           - --port
           - "5000"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "2Gi"
+            cpu: "800m"
+        
+        volumeMounts:
+        - name: mlflow-storage
+          mountPath: /mlflow
+      
+      volumes:
+      - name: mlflow-storage
+        persistentVolumeClaim:
+          claimName: mlflow-pvc
           

@@ -1104,7 +1104,7 @@ curl -X POST http://127.0.0.1:8000/predict \
   -H "Content-Type: application/json" \
   -d '{"data":[[5.1,3.5,1.4,0.2]]}'
 
-# Docker hub:
+# Dockerhub:
 
 docker login -u <username>
 docker tag mlops-regression_model_api:latest debago/iris-api:v1
@@ -1149,6 +1149,7 @@ az aks create `
   --enable-managed-identity `
   --generate-ssh-keys
 
+
 # Get credentials: (connect kubectl)
 
 az aks get-credentials `
@@ -1169,6 +1170,11 @@ kubectl apply -f .\k8s\api-deployment.yml
 kubectl apply -f .\k8s\api-service.yml
 kubectl apply -f .\k8s\mlflow-deployment.yml
 kubectl apply -f .\k8s\mlflow-service.yml
+
+# image force pull if any changes:
+
+kubectl delete job trainer-job -n mlops
+kubectl apply -f .\k8s\trainer-job.yml
 
 kubectl delete -f .\k8s\api-deployment.yml
 
@@ -1194,8 +1200,11 @@ wget -qO- http://mlflow:5000
 
 if wget is unavailable, use python:
 
-python -c "Import urllib.request;
-print(urllib.request.urlopen('http://mlflow:5000').status)"
+python -c "import urllib.request;print(urllib.request.urlopen('http://mlflow:5000').status)"
+expected: 200
+
+python -c "import socket;
+print(socket.gethostbyname('mlflow'))"
 
 # Check API logs now:
 
@@ -1233,4 +1242,62 @@ Deployment lables == Service selector
 kubectl get all -n mlops
 kubectl delete all --all -n mlops
 kubectl delete namespace mlops   # it deletes everything inside the namespace
+kubectl delete job trainer-job -n mlops
 
+# Delete failed pods
+kubectl delete pod -n mlops --field-selector=status.phase=Failed
+kubectl delete pod -n mlops --field-selector=status.phase=Unknown
+kubectl delete pod -n mlops --field-selector=status.phase!=Running
+kubectl delete pod -n mlops --all
+
+# restart/refresh deployment
+kubectl rollout restart deployment mlflow -n mlops
+
+# Port forward to access from local browser
+
+kubectl port-forward svc/mlflow 5000:5000 -n mlops
+
+# Nodepol:
+
+az aks nodepool list `
+  --resource-group mlops-rg `
+  --cluster-name mlops-aks `
+  -o table
+
+Kubectl get nodes -o wide
+kubectl get pods -o wide
+
+Add new nodepool to aks:
+
+az aks nodepool add `
+  --resource-group mlops-rg `
+  --cluster-name mlops-aks `
+  --name nodepool2 `
+  --node-count 1 `
+  --node-vm-size Standard_B4ms
+
+Drain old nodes:
+
+kubectl drain aks-nodepool1-23665012-vmss000000 `
+  --ignore-daemonsets `
+  --delete-emptydir-data
+
+
+Now Old pods are automatically shifted to new nodes
+
+ After pvc is applied check:
+
+kubectl get pods -n mlops -l app=mlflow
+kubectl exec -it mlflow-56cb5b7bd5-sdqhv -n mlops -- sh
+
+
+
+
+# Debug:
+
+kubectl describe pod <pod-id> -n mlops
+kubectl logs deployment/api -n mlops
+kubectl run debug-api \
+  --image=debago/iris-api:dev \
+  -n mlops \
+  --command -- sleep 3600

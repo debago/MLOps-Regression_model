@@ -4,12 +4,21 @@ metadata:
   name: trainer-job
   namespace: mlops
 spec:
+  ttlSecondsAfterFinished: 300
   template:
     spec:
+      restartPolicy: Never
       containers:
       - name: trainer
-        image: debago/iris-trainer:dev
+        image: debago/iris-train:dev
+        imagePullPolicy: Always
         env:
         - name: MLFLOW_TRACKING_URI
           value: "http://mlflow:5000"
-      restartPolicy: Never
+        resources:
+          requests:
+            memory: "200Mi"
+            cpu: "100m"
+          limits:
+            memory: "600Mi"
+            cpu: "400m"
