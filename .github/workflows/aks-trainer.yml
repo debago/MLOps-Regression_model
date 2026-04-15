@@ -1,0 +1,51 @@
+name: Run Trainer Job
+
+on:
+workflow_dispatch:
+
+env:
+IMAGE_TAG: ${{ github.sha }}
+AKS_RESOURCE_GROUP: mlops-rg
+AKS_CLUSTER_NAME: mlops-aks
+K8S_NAMESPACE: mlops
+
+jobs:
+trainer:
+runs-on: ubuntu-latest
+
+```
+steps:
+  - name: Checkout
+    uses: actions/checkout@v4
+
+  - name: Inject Trainer Image Tag
+    run: |
+      sed -i "s|debago/iris-train:IMAGE_TAG|debago/iris-train:${IMAGE_TAG}|g" k8s/trainer-job.yaml
+
+  - name: Azure Login
+    uses: azure/login@v2
+    with:
+      creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+  - name: Get AKS Credentials
+    run: |
+      az aks get-credentials \
+        --resource-group $AKS_RESOURCE_GROUP \
+        --name $AKS_CLUSTER_NAME \
+        --overwrite-existing
+
+  - name: Delete old job
+    run: |
+      kubectl delete job trainer-job -n $K8S_NAMESPACE --ignore-not-found=true
+
+  - name: Run Trainer Job
+    run: |
+      kubectl apply -f k8s/trainer-job.yaml
+
+  - name: Wait for completion
+    run: |
+      kubectl wait --for=condition=complete job/trainer-job -n $K8S_NAMESPACE --timeout=900s
+
+  - name: Show logs
+    run: |
+      kubectl logs job/trainer-job -n $K8S_NAMESPACE

@@ -22,7 +22,7 @@ spec:
           mountPath: /mlflow
       containers:
       - name: mlflow
-        image: debago/iris-mlflow:dev
+        image: debago/iris-mlflow:IMAGE_TAG
         imagePullPolicy: Always
         ports:
         - containerPort: 5000

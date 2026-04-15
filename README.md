@@ -1301,3 +1301,14 @@ kubectl run debug-api \
   --image=debago/iris-api:dev \
   -n mlops \
   --command -- sleep 3600
+
+
+# Create service principal:
+
+az login 
+
+az ad sp create-for-rbac `
+  --name "github-actions-aks" `
+  --role contributor `
+  --scopes /subscriptions/1e4cc2b4-ff4e-4354-983c-6285604a1e71 `
+  --sdk-auth

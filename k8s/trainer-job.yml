@@ -10,11 +10,11 @@ spec:
       restartPolicy: Never
       containers:
       - name: trainer
-        image: debago/iris-train:dev
+        image: debago/iris-train:IMAGE_TAG
         imagePullPolicy: Always
-        env:
-        - name: MLFLOW_TRACKING_URI
-          value: "http://mlflow:5000"
+        envFrom:
+        - configMapRef:
+            name: trainer-config
         resources:
           requests:
             memory: "200Mi"

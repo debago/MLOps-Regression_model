@@ -40,10 +40,10 @@ jobs:
       - name: Push Images
         run: |
           docker push $DOCKER_USERNAME/iris-api:${IMAGE_TAG}
-          docker tag $DOCKER_USERNAME/iris-api:${IMAGE_TAG} $DOCKER_USERNAME/iris-api:dev
-          docker push $DOCKER_USERNAME/iris-api:dev
           docker push $DOCKER_USERNAME/iris-train:${IMAGE_TAG}
           docker push $DOCKER_USERNAME/iris-mlflow:${IMAGE_TAG}
+          # docker tag $DOCKER_USERNAME/iris-api:${IMAGE_TAG} $DOCKER_USERNAME/iris-api:dev
+          # docker push $DOCKER_USERNAME/iris-api:dev
 
 # # -----------------------
 # # DEPLOY DEV

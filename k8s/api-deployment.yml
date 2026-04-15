@@ -17,15 +17,17 @@ spec:
     spec:
       containers:
       - name: api
-        image: debago/iris-api:dev
+        image: debago/iris-api:IMAGE_TAG
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
-        env:
-        - name: MLFLOW_TRACKING_URI
-          value: "http://mlflow:5000"
-        - name: MODEL_URI
-          value: "models:/iris-model/latest"
+        envFrom:
+        - configMapRef:
+            name: api-config
+        # - name: MLFLOW_TRACKING_URI
+        #   value: "http://mlflow:5000"
+        # - name: MODEL_URI
+        #   value: "models:/iris-model/latest"
         resources:
           requests:
             memory: "128Mi"

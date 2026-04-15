@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trainer-config
+  namespace: mlops
+data:
+  MLFLOW_TRACKING_URI: "http://mlflow:5000"
