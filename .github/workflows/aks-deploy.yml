@@ -1,21 +1,21 @@
 name: Build Push and Deploy to AKS
 
 on:
-push:
-branches:
-- main
+  push:
+    branches:
+      - main
 
 env:
-IMAGE_TAG: ${{ github.sha }}
-AKS_RESOURCE_GROUP: mlops-rg
-AKS_CLUSTER_NAME: mlops-aks
-K8S_NAMESPACE: mlops
+  IMAGE_TAG: ${{ github.sha }}
+  AKS_RESOURCE_GROUP: mlops-rg
+  AKS_CLUSTER_NAME: mlops-aks
+  K8S_NAMESPACE: mlops
 
 jobs:
-build-push-deploy:
-runs-on: ubuntu-latest
+  build-push-deploy:
+    runs-on: ubuntu-latest
 
-```
+
 steps:
   - name: Checkout code
     uses: actions/checkout@v4

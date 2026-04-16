@@ -4,48 +4,48 @@ on:
 workflow_dispatch:
 
 env:
-IMAGE_TAG: ${{ github.sha }}
-AKS_RESOURCE_GROUP: mlops-rg
-AKS_CLUSTER_NAME: mlops-aks
-K8S_NAMESPACE: mlops
+  IMAGE_TAG: ${{ github.sha }}
+  AKS_RESOURCE_GROUP: mlops-rg
+  AKS_CLUSTER_NAME: mlops-aks
+  K8S_NAMESPACE: mlops
 
 jobs:
-trainer:
-runs-on: ubuntu-latest
+  trainer:
+  runs-on: ubuntu-latest
 
-```
-steps:
-  - name: Checkout
-    uses: actions/checkout@v4
 
-  - name: Inject Trainer Image Tag
-    run: |
-      sed -i "s|debago/iris-train:IMAGE_TAG|debago/iris-train:${IMAGE_TAG}|g" k8s/trainer-job.yaml
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
 
-  - name: Azure Login
-    uses: azure/login@v2
-    with:
-      creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Inject Trainer Image Tag
+      run: |
+        sed -i "s|debago/iris-train:IMAGE_TAG|debago/iris-train:${IMAGE_TAG}|g" k8s/trainer-job.yaml
 
-  - name: Get AKS Credentials
-    run: |
-      az aks get-credentials \
-        --resource-group $AKS_RESOURCE_GROUP \
-        --name $AKS_CLUSTER_NAME \
-        --overwrite-existing
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-  - name: Delete old job
-    run: |
-      kubectl delete job trainer-job -n $K8S_NAMESPACE --ignore-not-found=true
+    - name: Get AKS Credentials
+      run: |
+        az aks get-credentials \
+          --resource-group $AKS_RESOURCE_GROUP \
+          --name $AKS_CLUSTER_NAME \
+          --overwrite-existing
 
-  - name: Run Trainer Job
-    run: |
-      kubectl apply -f k8s/trainer-job.yaml
+    - name: Delete old job
+      run: |
+        kubectl delete job trainer-job -n $K8S_NAMESPACE --ignore-not-found=true
 
-  - name: Wait for completion
-    run: |
-      kubectl wait --for=condition=complete job/trainer-job -n $K8S_NAMESPACE --timeout=900s
+    - name: Run Trainer Job
+      run: |
+        kubectl apply -f k8s/trainer-job.yaml
 
-  - name: Show logs
-    run: |
-      kubectl logs job/trainer-job -n $K8S_NAMESPACE
+    - name: Wait for completion
+      run: |
+        kubectl wait --for=condition=complete job/trainer-job -n $K8S_NAMESPACE --timeout=900s
+
+    - name: Show logs
+      run: |
+        kubectl logs job/trainer-job -n $K8S_NAMESPACE
