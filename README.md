@@ -1353,7 +1353,7 @@ touch mlflow-pvc.yaml
 
 helm lint helm/ml-api
 
-render template:
+# render template:
 
 helm template ml-api helm/ml-api
 
@@ -1365,15 +1365,37 @@ helm template ml-api helm/ml-api -n mlops --debug
 
 helm upgrade --install ml-api helm/ml-api -n mlops --create-namespace
 helm upgrade --install ml-api helm/ml-api -n mlops
+helm upgrade --install ml-api helm/ml-api \
+  -n mlops \
+  --create-namespace \
+  --set image.api.tag={{ github.sha}} \
+  --set secrets.api.DB_PASSWORD="${{ secrets.DB_PASSWORD }}$"
+
 then restart Pod:
 
 kubectl rollout restart deployment ml-api-api -n mlops
 kubectl logs deployment/ml-api-api -n mlops
 
 helm list -n mlops
+helm get manifest ml-api -n mlops
 kubectl get pods -n mlops
 kubectl get svc -n mlops
 kubectl get pvc -n mlops
+
+# Clean Kubectl and keep Helm not mixed.
+
+helm list -n mlops
+helm get manifest -n mlops
+kubectl get all -n mlops
+
+kubectl get deploy <name> -n mlops -o yaml
+kubectl get svc <name> -n mlops -o yaml
+kubectl get configmap <name> -n mlops -o yaml
+
+Delete old non-helm resources:
+
+kubectl delete deploy api -n mlops --ignore-not-found=true
+
 
 
 # Ingress:
@@ -1401,4 +1423,14 @@ kubectl get svc -n ingress-nginx
 kubectl get endpoints -n mlops
 kubectl get svc -n mlops
 
+# Liveness probe: is app live
+# Readiness probe: is app ready to serve the traffic
 
+Liveness Fails: POD restarts
+Readiness Fails:Pod removed from Traffic
+
+Check probe status:
+kubectl get pod -n mlops
+kubectl describe pod <pod name> -n mlops
+kubectl get rs -n mlops
+kubectl get deploy lml-api -n mlops

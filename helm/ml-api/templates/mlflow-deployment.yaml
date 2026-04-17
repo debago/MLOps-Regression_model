@@ -47,7 +47,21 @@ spec:
           limits:
             memory: "2Gi"
             cpu: "800m"
-        
+        livenessProbe:
+          httpGet:
+            path: {{.Values.probes.mlflow.liveness.path}}
+            port: 5000
+          initialDelaySeconds: {{.Values.probes.mlflow.liveness.initialDelaySeconds}}
+          periodSeconds: {{.Values.probes.mlflow.liveness.periodSeconds}}
+          failureThreshold: {{.Values.probes.mlflow.liveness.failureThreshold}}
+        readinessProbe:
+          httpGet:
+            path: {{.Values.probes.mlflow.readiness.path}}
+            port: 5000
+          initialDelaySeconds: {{.Values.probes.mlflow.readiness.initialDelaySeconds}}
+          periodSeconds: {{.Values.probes.mlflow.readiness.periodSeconds}}
+          failureThreshold: {{.Values.probes.mlflow.readiness.failureThreshold}}
+
         volumeMounts:
         - name: mlflow-storage
           mountPath: /mlflow

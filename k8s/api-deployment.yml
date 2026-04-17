@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: api
-        image: debago/iris-api:IMAGE_TAG
+        image: debago/iris-api:dev
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
@@ -35,3 +35,25 @@ spec:
           limits:
             memory: "300Mi"
             cpu: "200m"
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          failureThreshold: 30
+          periodSeconds: 10
+          initialDelaySeconds: 10
+          timeoutSeconds: 2
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 3
+          failureThreshold: 3

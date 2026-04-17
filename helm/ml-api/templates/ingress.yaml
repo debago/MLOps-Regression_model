@@ -18,3 +18,11 @@ spec:
                 name: {{ .Release.Name }}-api
                 port:
                   number: {{ .Values.service.port }}
+          
+          - path: /mlflow
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-mlflow
+                port:
+                  number: 5000
