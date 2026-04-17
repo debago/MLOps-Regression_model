@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{.Release.Name}}-mlflow-config
+  namespace: mlops
+data:
+  BACKEND_STORE_URI: "{{.Values.config.mlflow.BACKEND_STORE_URI}}"
+  ARTIFACT_ROOT: "{{.Values.config.mlflow.ARTIFACT_ROOT}}"

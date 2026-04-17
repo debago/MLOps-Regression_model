@@ -1312,3 +1312,93 @@ az ad sp create-for-rbac `
   --role contributor `
   --scopes /subscriptions/1e4cc2b4-ff4e-4354-983c-6285604a1e71 `
   --sdk-auth
+
+
+# Introduction of Helm :
+
+helm version
+if not present install: go to official helm docs
+
+winget install Helm.Helm
+
+mkdir -p helm
+cd helm
+helm create ml-api
+
+clean default file:
+
+rm ml-api/templates/deployment.yaml
+rm ml-api/templates/service.yaml
+rm ml-api/templates/ingress.yaml
+rm ml-api/templates/hpa.yaml
+rm -rf ml-api/templates/tests
+rm ml-api/templates/NOTES.txt
+
+cd ml-api/templates
+
+touch api-deployment.yaml
+touch api-service.yaml
+touch mlflow-deployment.yaml
+touch mlflow-service.yaml
+touch trainer-job.yaml
+touch api-configmap.yaml
+touch mlflow-configmap.yaml
+touch trainer-configmap.yaml
+touch api-secret.yaml
+touch mlflow-secret.yaml
+touch trainer-secret.yaml
+touch mlflow-pvc.yaml
+
+# verify Chart:
+
+helm lint helm/ml-api
+
+render template:
+
+helm template ml-api helm/ml-api
+
+helm template ml-api helm/ml-api -n mlops
+
+helm template ml-api helm/ml-api -n mlops --debug
+
+# Deploy:
+
+helm upgrade --install ml-api helm/ml-api -n mlops --create-namespace
+helm upgrade --install ml-api helm/ml-api -n mlops
+then restart Pod:
+
+kubectl rollout restart deployment ml-api-api -n mlops
+kubectl logs deployment/ml-api-api -n mlops
+
+helm list -n mlops
+kubectl get pods -n mlops
+kubectl get svc -n mlops
+kubectl get pvc -n mlops
+
+
+# Ingress:
+
+1. api service as cluster ip
+2. An ingress controller in AKS  
+3. An ingress resource
+
+# Install ingress controller: 
+
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+
+  # install controller:
+
+helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --create-namespace
+
+
+Kubectl get ingress -n mlops
+kubectl describe ingress ml-api-ingress -n mlops
+kubectl get pods -n ingress-nginx
+kubectl get svc -n ingress-nginx
+kubectl get endpoints -n mlops
+kubectl get svc -n mlops
+
+

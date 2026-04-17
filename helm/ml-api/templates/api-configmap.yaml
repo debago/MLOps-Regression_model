@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{.Release.Name}}-api-config
+  namespace: {{.Release.Namespace}}
+data:
+  # You can add any configuration data your API needs here. For example:
+  # config.yaml: |
+  #   setting1: value1
+  #   setting2: value2
+  MLFLOW_TRACKING_URI: "{{.Values.config.api.MLFLOW_TRACKING_URI}}"
+  MODEL_URI: "{{.Values.config.api.MODEL_URI}}"

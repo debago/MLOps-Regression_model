@@ -1,0 +1,37 @@
+# Step 2: Deployment:
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Release.Name}}-api
+  namespace: {{.Release.Namespace}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api  #important
+  template:
+    metadata:
+      labels:
+        app: api  #must match the selector
+    spec:
+      containers:
+      - name: api
+        image: "{{.Values.image.api.repository}}:{{.Values.image.api.tag}}"
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: {{.Release.Name}}-api-config
+        # - name: MLFLOW_TRACKING_URI
+        #   value: "http://mlflow:5000"
+        # - name: MODEL_URI
+        #   value: "models:/iris-model/latest"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "300Mi"
+            cpu: "200m"
