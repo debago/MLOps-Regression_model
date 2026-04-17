@@ -167,21 +167,21 @@ probes:
     startup:
       path: /health
       port: 8000
-      failureThreshold: 30
+      failureThreshold: 60
       periodSeconds: 10
       initialDelaySeconds: 10
       timeoutSeconds: 2
     liveness:
       path: /health
       port: 8000
-      initialDelaySeconds: 15
+      initialDelaySeconds: 60
       periodSeconds: 20
       failureThreshold: 3
     readiness:    
       path: /health
       port: 8000
-      initialDelaySeconds: 5
-      periodSeconds: 3
+      initialDelaySeconds: 20
+      periodSeconds: 10
       failureThreshold: 3
   mlflow:
     liveness:

@@ -40,7 +40,7 @@ spec:
         startupProbe:
           httpGet:
             path: {{.Values.probes.api.startup.path}}
-            port: {{.Values.service.port}}
+            port: {{.Values.probes.api.startup.port}}
           failureThreshold: {{.Values.probes.api.startup.failureThreshold}}
           periodSeconds:  {{.Values.probes.api.startup.periodSeconds}}
           initialDelaySeconds: {{.Values.probes.api.startup.initialDelaySeconds}}
@@ -48,7 +48,7 @@ spec:
         livenessProbe:
           httpGet:
             path: {{.Values.probes.api.liveness.path}}
-            port: 8000
+            port: {{.Values.probes.api.liveness.port}}
           initialDelaySeconds: {{.Values.probes.api.liveness.initialDelaySeconds}}
           periodSeconds: {{.Values.probes.api.liveness.periodSeconds}}
           failureThreshold: {{.Values.probes.api.liveness.failureThreshold}}

@@ -1434,3 +1434,46 @@ kubectl get pod -n mlops
 kubectl describe pod <pod name> -n mlops
 kubectl get rs -n mlops
 kubectl get deploy lml-api -n mlops
+
+# Monitoring:
+
+kubectl top pods -n mlops
+
+kubectl top nodes -n mlops
+
+# Daily health check commands for kubernetes:
+
+core:
+kubectl get pods -n mlops
+kubectl get pods -n mlops -o wide
+
+deployment:
+kubectl get deploy -n mlops
+kubectl rollout status deployment/ml-api-api -n mlops
+
+service:
+kubectl get svc -n mlops
+kubectl get endpoints -n mlops
+
+ingress:
+kubectl get ingress -n mlops
+kubectl describe ingress ml-api-ingress -n mlops
+
+pvc:
+kubectl get pvc -n mlops
+
+
+Describe fallin pod:
+
+kubectl describe pod <pod-name> -n mlops
+
+logs:
+kubectl logs <pod-name> -n mlops
+kubectl logs <pod-name> -n mlops --previous
+
+cpu-memeory:
+kubectl top pods -n mlops
+kubectl top nodes
+
+
+
