@@ -15,7 +15,6 @@ def load_params():
     with open(params_path, "r") as f:
         return yaml.safe_load(f)
 
-
 def preprocess_data():
     params = load_params()
 
@@ -43,8 +42,9 @@ def preprocess_data():
         y,
         test_size=params["data"]["test_size"],
         random_state=params["data"]["random_state"],
+        stratify=y
     )
-
+    
     return X_train, X_test, y_train, y_test
 
 

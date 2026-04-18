@@ -1,0 +1,23 @@
+artifact_path: file:C:/mlops/Iris_data_production_ready/MLOps-Regression_model/mlruns/1/models/m-1397e7ae7ae24922adcc88038d5a9231/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.13.12
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.8.0
+    skops_trusted_types: null
+mlflow_version: 3.10.1
+model_id: m-1397e7ae7ae24922adcc88038d5a9231
+model_size_bytes: 158157
+model_uuid: m-1397e7ae7ae24922adcc88038d5a9231
+prompts: null
+run_id: a642b78fa5bb46d7b0fb327ca55a23f7
+utc_time_created: '2026-04-18 15:58:43.288641'

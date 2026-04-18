@@ -1441,6 +1441,48 @@ kubectl top pods -n mlops
 
 kubectl top nodes -n mlops
 
+
+# HPA and VPA:
+
+HPA : Scale out (More Pods)
+VPA: Scale Up (Bigger Pods)
+
+API: HPA:
+MLFLOW: Fixed
+Trainer: VPA
+
+HPA needs CPU request set, otherwise it won't work.
+
+
+After tmplate render and deploy, check HPA:
+
+kubectl get hpa -n mlops
+kubectl describe hpa ml-api-hpa
+
+HPA needs metrics, verify below works:
+
+kubectl top pods -n mlops
+kubectl top nodes
+
+
+Test Autoscaling: (w signifies watch-- Keeps updating LIVE as changes happen---knd of live streaming of kubernetes state)
+
+kubectl get hpa -n mlops -w
+kubectl get pods -n mlops -w
+
+Without -w below comnda only shows current status:
+
+kubectl get pods -n mlops
+
+Generate dummy load"
+
+for i in {1..50}; do
+  while true; do curl https://52.226.213.93/docs >/dev/null;
+  done &
+done
+
+
+
 # Daily health check commands for kubernetes:
 
 core:
@@ -1474,6 +1516,102 @@ kubectl logs <pod-name> -n mlops --previous
 cpu-memeory:
 kubectl top pods -n mlops
 kubectl top nodes
+
+Clean up:
+
+helm uninstall ml-api -n mlops 2>/dev/null || true
+kubectl delete namespace mlops --ignore-not-found=true
+kubectl create namespace mlops
+helm upgrade --install ml-api helm/ml-api -n mlops
+
+# Create Alias for clean:
+
+alias kclean='helm uninstall ml-api -n mlops 2>/dev/null ||true && kubectl delete ns mlops --ignore-not found=true && kubectl create ns mlops'
+
+just run kclean
+
+# Observability:
+
+
+
+metrics --->prometheus
+Dashboard---> Grafana
+Logs-->Loki/ ELK
+
+
+# Install Prometheus:
+
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+
+helm repo add grafana https://grafana.github.io/helm-charts
+
+helm repo update
+helm repo list
+
+
+Create namespace
+
+kubectl create namespace monitoring
+
+Install Prometheus+grafana all -in-one
+
+helm install monitoring prometheus-community/kube-prometheus-stack -n monitoring
+
+This includes:
+
+Prometheus (metrics)
+Grafana(dashboard)
+Alertmanager
+Node exporter
+Kubernetes metrics
+
+Cheec whether all installs:?
+
+Kubectle get pods -n monitoring
+
+Access Grafana:
+
+get password:
+
+kubectl get secret monitoring-grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 --decode
+
+kubectl get svc -n monitoring
+kubectl port-forward svc/monitoring-grafana 3000:80 -n monitoring
+
+browse: localhost:3000
+
+username: admin
+Password: <as received from above command>
+
+
+prometheus:
+
+Kubectl get svc -n mlops
+
+find the o/p: monitoring-kube-prometheus-prometheus     ClusterIP   10.0.234.208   <none>        9090/TCP,
+
+It's cluster-ip so, won't be accessible from browser;
+
+Lets port forward:
+
+kubectl port-forward svc/monitoring-kube-prometheus-prometheus 8090:9090 -n monitoring
+
+# Validation
+# Drift Detection -- AI
+
+P value towards 1 ---data looks relevant w.r.t training
+P value nearing 0 ---- Data looks drifted , need retrain.
+High p value good
+Low P value= problem
+
+Trigger retraining automatically when drift > threshold
+
+This is a very strong interview differentiator
+# resource--CPU+Memory  details
+
+
+
+
 
 
 

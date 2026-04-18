@@ -18,6 +18,19 @@ def load_params():
     with open(params_path, "r") as f:
         return yaml.safe_load(f)
 
+def save_reference_data(X_train):
+    os.makedirs("data/reference", exist_ok=True)
+    
+    ref_df = X_train.copy()
+    ref_df.to_csv("data/reference/train_reference.csv", index=False)
+    print("✅ Reference dataset saved")
+
+def save_current_data(X_test):
+    os.makedirs("data/current", exist_ok=True)
+    current_df = X_test.copy()
+    current_df.to_csv("data/current/current_batch.csv", index=False)
+    print("✅ current_batch.csv created")
+
 #--------------------------------------
 # Model Train
 #---------------------------------------
@@ -37,6 +50,14 @@ def train_model():
 
     # Load data
     X_train, X_test, y_train, y_test = preprocess_data()
+    save_reference_data(X_train)
+
+    # Drift Simulation - We will use this later for drift detection, but let's create the file here for now. We will overwrite it with real data in the future.
+    # X_test_drifted = X_test.copy()
+    # X_test_drifted["sepal length (cm)"] *= 700
+
+    # save_current_data(X_test_drifted)
+    save_current_data(X_test)
 
     # Model
     model = RandomForestClassifier(
